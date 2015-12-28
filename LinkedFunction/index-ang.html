@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Angluar Function Click</title>
+	<style type="text/css">
+		.log-pane{
+			margin: 15px 5px;
+			padding: 10px;
+			border: 1px solid #E7E7E7;
+			color: #6E6E6E;
+		}
+	</style>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular.min.js"></script>
+	<script src="http://static.fusioncharts.com/code/latest/fusioncharts.js"></script>
+	<script src="http://fusioncharts.github.io/angular-fusioncharts/demos/js/angular-fusioncharts.min.js"></script>
+
+
+
+	<script type="text/javascript">
+
+		/*
+		 * Currently FusionCharts executes the link function in global context. Hence we can't
+		 * directly link function from controller. However workaround is available to get the 
+		 * same effect.
+		 * The drawback of this workaround is that it needs a global javascript object. 
+		 * If global is already in use for the application we can use that one. Else we can create
+		 * a simple global object carefully.
+		 */
+		var app = angular.module('myApp', ["ng-fusioncharts"]),
+			globalContainer = {};
+
+		app.controller('angFcDemoController', ['$scope', function ($scope) {
+		    var vm = this;
+
+		    $scope.logMessage = 'Click on the odd plot to see the effect';
+
+		    // Save the function reference in global object so that FusionCharts link can call 
+		    // it when called
+		    globalContainer.log = vm.log = function(msg){ 
+		    	// Since the update is happening outside angular execution context we need 
+		    	// the digest cycle to run to make sure that the view is updated.	
+		    	$scope.$apply(function(){
+					$scope.logMessage = "Percentage is  "+msg+"% of the total";		    		
+		    	});
+		    }
+		    var x=3;
+		    var DataSource = {
+		            "chart": {
+		                "caption": "Monthly revenue for last year",
+		                "subCaption": "Harry's SuperMart",
+		                "xAxisName": "Month",
+		                "yAxisName": "Revenues (In USD)",
+		                "numberPrefix": "$",
+		                "paletteColors": "#0075c2",
+		                "bgColor": "#ffffff",
+		                "borderAlpha": "20",
+		                "canvasBorderAlpha": "0",
+		                "usePlotGradientColor": "0",
+		                "plotBorderAlpha": "10",
+		                "placevaluesInside": "1",
+		                "rotatevalues": "1",
+		                "valueFontColor": "#ffffff",                
+		                "showXAxisLine": "1",
+		                "xAxisLineColor": "#999999",
+		                "divlineColor": "#999999",               
+		                "divLineIsDashed": "1",
+		                "showAlternateHGridColor": "0",
+		                "subcaptionFontBold": "0",
+		                "subcaptionFontSize": "14"
+		            },            
+		            "data": [
+		                {
+		                    "label": "Jan",
+		                    "value": "420000"
+		                }, 
+		                {
+		                    "label": "Feb",
+		                    "value": "810000"
+		                }, 
+		                {
+		                    "label": "Mar",
+		                    "value": "720000"
+		                }, 
+		                {
+		                    "label": "Apr",
+		                    "value": "550000"
+		                }, 
+		                {
+		                    "label": "May",
+		                    "value": "910000"
+		                }, 
+		                {
+		                    "label": "Jun",
+		                    "value": "510000"
+		                }, 
+		                {
+		                    "label": "Jul",
+		                    "value": "680000"
+		                }, 
+		                {
+		                    "label": "Aug",
+		                    "value": "620000"
+		                }, 
+		                {
+		                    "label": "Sep",
+		                    "value": "610000"
+		                }, 
+		                {
+		                    "label": "Oct",
+		                    "value": "490000"
+		                }, 
+		                {
+		                    "label": "Nov",
+		                    "value": "900000"
+		                }, 
+		                {
+		                    "label": "Dec",
+		                    "value": "730000"
+		                }
+		            ],
+		            "trendlines": [
+		                {
+		                    "line": [
+		                        {
+		                            "startvalue": "700000",
+		                            "color": "#1aaf5d",
+		                            "valueOnRight": "1",
+		                            "displayvalue": "Monthly Target"
+		                        }
+		                    ]
+		                }
+		            ]
+		        }
+
+		        var myData=DataSource.data,total=0;
+		        for(var i=0;i<myData.length;i++)
+		        {
+		        	total+=Number(myData[i].value);
+		        }
+		        for(var i=0;i<myData.length;i++)
+		        {
+		        	var ratio=(parseFloat(myData[i].value/total)*100).toFixed(2);
+		        	var myString="Ratio is : "+ratio+" %";
+		        	myData[i]["link"]="JavaScript:globalContainer.log("+ratio+");";
+		        }
+		        
+		        vm.myDataSource=DataSource;
+		       
+
+
+
+		}]);
+	</script>
+</head>
+<body>
+	<div ng-app="myApp">
+	  <div class="container" ng-controller="angFcDemoController as vm">
+	    <div fusionCharts
+	         width="1000"
+	         height="550"
+	         id="test"
+	         type="column2d"
+	         datasource="{{vm.myDataSource}}">
+	    </div>
+
+	    <div class='log-pane'>{{logMessage}}</div>
+	  </div>
+	</div>
+</body>
+</html>

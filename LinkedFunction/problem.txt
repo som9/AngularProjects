@@ -1,0 +1,2 @@
+Have however come to the realization that drilldown charts using the link attribute does not provide a way to execute functions within the AngularJS
+controller. Is there a way to accomplish this?
